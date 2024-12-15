@@ -8,7 +8,7 @@ volatile int lpit0_ch1_flag_counter = 0;
 volatile bool sw4_flag = false;
 volatile bool uw_on_flag = false;
 volatile int lcd_cnt = 0;
-volatile int start = 0;   // 처음에 wildlife lcd 안켜게 하기 위함
+volatile int start = 0;   // For NO Wildlife lcd at first
 
 extern WILDLIFE_TYPE current_state;
 extern int wildlife_distance;
@@ -30,12 +30,10 @@ void PORTC_IRQHandler(void) {
         uw_on_flag = !uw_on_flag;
         if (uw_on_flag) {
             LED2_ON; 
-            // ch1 on
         } else {
             LED2_OFF;
             LED5_OFF;
             current_state = STEADY_STATE;
-            // ch1 off
         }
         lcd_cnt = 0;
     }
@@ -44,7 +42,7 @@ void PORTC_IRQHandler(void) {
     PORTC->PCR[17] |= 0x01000000;
 }
 
-// 1ms마다 발생
+// every 1ms
 void LPIT0_Ch0_IRQHandler(void)
 {
     uart_print_counter++;
@@ -53,7 +51,6 @@ void LPIT0_Ch0_IRQHandler(void)
         wildlife_detect();
         clear_warning();
     }
-
 
     if (sw4_flag && SW4_ON) {
         sw4_counter++;
@@ -73,7 +70,7 @@ void LPIT0_Ch0_IRQHandler(void)
     LPIT0->MSR |= LPIT_MSR_TIF0_MASK; /* Clear LPIT0 timer flag*/
 }
 
-// 1us마다 발생
+// every 1us
 void LPIT0_Ch1_IRQHandler(void)
 {
     uwave_sensing();
@@ -109,7 +106,6 @@ int main() {
             }
             lcd_cnt = 1;
         }
-
 
     }
     return 0;

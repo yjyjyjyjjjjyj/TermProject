@@ -12,25 +12,8 @@
 int flag_counter=0;
 
 #define BASE 	 10
-//#define EN
-//#define RW		 12
-//#define RS		 6
-//#define BF		 3
-
-
-void lcdEN(void){
-	PTB->PSOR |= 1<<(0);
-}
-
-void lcdNEN(void){
-	PTB->PCOR |= 1<<(0);
-}
-
-
-
 
 void lcdinit(void){
-
 
 	lcdinput(0x28);	//lcd function set #1
 	delay_100ns(70000);
@@ -67,15 +50,15 @@ void lcdinit(void){
 void lcdinput(uint16_t data){
 	uint16_t data1 = ((uint16_t)data&0xF0)<<(BASE-4);	//D7 ~ 4
 	uint16_t data2 = (((uint16_t)data&0x0F)<<BASE);		//D3 ~ 0
-	PTB->PCOR |= 1<<(1);
+	LCD_RW;
 
 	//data1
-	lcdEN();
+	LCD_EN;
 	PTB->PCOR |= 0xF<<BASE;
 	PTB->PSOR |= data1;
 	delay_100ns(5);
 
-	lcdNEN();
+	LCD_NEN;
 
 	//clear before 2nd transmission
 	delay_100ns(2);
@@ -83,12 +66,12 @@ void lcdinput(uint16_t data){
 	delay_100ns(30);
 
 	//data2
-	lcdEN();
+	LCD_EN;
 	PTB->PCOR |= 0xF<<BASE;
 	PTB->PSOR |= data2;
 	delay_100ns(5);
 
-	lcdNEN();
+	LCD_NEN;
 
 	//clear before next order
 	delay_100ns(2);
@@ -102,14 +85,14 @@ void lcdcharinput(char data){
 	uint16_t data1 = ((uint16_t)data&0xF0)<<(BASE-4); //D7 ~ 4
 	uint16_t data2 = (((uint16_t)data&0x0F)<<BASE); //D3 ~ 0
 
-	PTB->PSOR |= 1<<(2);
+	LCD_RS;
 	//data1
-	lcdEN();
+	LCD_EN;
 	PTB->PCOR |= (0xF<<BASE);
 	PTB->PSOR |= data1;
 	delay_100ns(3);
 
-	lcdNEN();
+	LCD_NEN;
 
 	//clear before 2nd transmission
 	delay_100ns(2);
@@ -118,12 +101,12 @@ void lcdcharinput(char data){
 
 
 	//data2
-	lcdEN();
+	LCD_EN;
 	PTB->PCOR |= 0xF<<BASE;
 	PTB->PSOR |= data2;
 	delay_100ns(30);
 
-	lcdNEN();
+	LCD_NEN;
 
 	//clear before next order
 	delay_100ns(2);

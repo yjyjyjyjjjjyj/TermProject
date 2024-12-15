@@ -19,8 +19,8 @@ int cnt = 0;
 int loading_anim_index = 0;
 int cnt_blind = 0;
 int D_Blind = 7600;
-int blind_state = 0;   // 0: 멈춤, 1: 내려가는 중, 2: 올라가는 중
-int switch_released = 1; // 스위치가 떼어진 상태인지 확인하는 플래그
+int blind_state = 0;   // 0: stop, 1: down, 2: up
+int switch_released = 1; // Flag to check if the switch is in a released state
 
 void Segment_display (int seg) {
     switch(seg)
@@ -287,55 +287,55 @@ void Inver_Loading_seg(void)
 }
 
 void blind_control(void) {
-    if (SW3_ON) { // SW3가 눌린 상황    
-        if (switch_released) { // 스위치가 한 번 떼어졌다가 눌린 경우에만 동작
+    if (SW3_ON) { // When SW3 is pressed
+        if (switch_released) { // Operates only if the switch was released and pressed again
             if ((cnt_blind == 0) || (cnt_blind == 3500))
                 Blind_Operating();
             switch (blind_state) {
-                case 0: // 멈춤 상태에서 시작
+                case 0: // Starting from the stopped state
                     if (cnt_blind == 0) {
-                        blind_state = 1; // 내려가는 상태로 전환
+                        blind_state = 1; // Change to lowering state
                     } else if (cnt_blind == 3500) {
-                        blind_state = 2; // 올라가는 상태로 전환
+                        blind_state = 2; // Change to raising state
                     }
                     break;
 
-                case 1: // 내려가는 중
+                case 1: // Lowering
                     break;
 
-                case 2: // 올라가는 중
+                case 2: // Raising
                     break;
             }
-            switch_released = 0; // 스위치가 눌렸음을 기록
+            switch_released = 0; // Record that the switch is pressed
         }
 
-        // 블라인드 동작 관리
-        if (blind_state == 1) { // 내려가는 중
+        // Blind operation control
+        if (blind_state == 1) { // Lowering
             Loading_seg();
             FTM3->CONTROLS[1].CnV = FTM_CnV_VAL(0);
             FTM3->CONTROLS[0].CnV = FTM_CnV_VAL(D_Blind);
 
             cnt_blind++;
             if (cnt_blind == 3500) {
-                blind_state = 0; // 멈춤 상태로 전환
+                blind_state = 0; // Change to stopped state
             }
-        } else if (blind_state == 2) { // 올라가는 중
+        } else if (blind_state == 2) { // Raising
             Inver_Loading_seg();
             FTM3->CONTROLS[0].CnV = FTM_CnV_VAL(0);
             FTM3->CONTROLS[1].CnV = FTM_CnV_VAL(D_Blind);
 
             cnt_blind++;
             if (cnt_blind == 7000) {
-                blind_state = 0; // 멈춤 상태로 전환
+                blind_state = 0; // Change to stopped state
                 cnt_blind = 0;
             }
-        } else { // 멈춤 상태
+        } else { // Stopped state
             FTM3->CONTROLS[0].CnV = FTM_CnV_VAL(0);
             FTM3->CONTROLS[1].CnV = FTM_CnV_VAL(0);
             loading_anim_index = 0;
         }
-    } else { //스위치가 떼어진 경우에는 블라인드는 무조건 멈춤(사용자가 블라인드를 내리고 싶은 만큼 조절하기 위해서)
-        switch_released = 1; // 스위치가 떼어졌음을 기록
+    } else { // When the switch is released, stop the blind (allows user to control how far the blind lowers)
+        switch_released = 1; // Record that the switch is released
         FTM3->CONTROLS[0].CnV = FTM_CnV_VAL(0);
         FTM3->CONTROLS[1].CnV = FTM_CnV_VAL(0);
         loading_anim_index = 0;

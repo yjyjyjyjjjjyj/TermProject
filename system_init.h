@@ -32,6 +32,10 @@
 #define SW4_ON            ((PTC->PDIR & (1 << 17)) == 0)
 #define SW5_ON            ((PTC->PDIR & (1 << 5)) == 0)
 
+#define LCD_EN            (PTB->PSOR |= 1<<0)
+#define LCD_NEN           (PTB->PCOR |= 1<<0)
+#define LCD_RW            (PTB->PCOR |= 1<<1)
+#define LCD_RS            (PTB->PSOR |= 1<<2)
 
 
 void system_init(void);

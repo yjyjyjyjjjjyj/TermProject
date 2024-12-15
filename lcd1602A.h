@@ -12,4 +12,5 @@ void lcdinit(void);
 void lcdinput(uint16_t data);
 void lcdcharinput(char data);
 void busycheck(void);
+
 #endif /* LCD1602A_H_ */
